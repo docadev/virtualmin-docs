@@ -46,6 +46,7 @@ fi
 To automatically update the SSL certificate for Prosody, after a domain's SSL certificate is updated, you can apply the following script:
 
 ```text
+#!/bin/sh
 if [ "$VIRTUALSERVER_ACTION" = "SSL_DOMAIN" ]; then
   /usr/bin/cp -f /etc/ssl/virtualmin/$VIRTUALSERVER_ID/$VIRTUALSERVER_DOM.key /etc/prosody/certs/$VIRTUALSERVER_DOM.key
   /usr/bin/cp -f /etc/ssl/virtualmin/$VIRTUALSERVER_ID/$VIRTUALSERVER_DOM.combined /etc/prosody/certs/$VIRTUALSERVER_DOM.combined
@@ -60,6 +61,7 @@ fi
 To sync the SSL certificate with a remote server, you can apply the following script:
 
 ```text
+#!/bin/sh
 if [ "$VIRTUALSERVER_ACTION" = "SSL_DOMAIN" ]; then
     # Define the base directory for the SSL files
     BASE_DIR="/etc/ssl/virtualmin/$VIRTUALSERVER_ID"
@@ -80,6 +82,34 @@ if [ "$VIRTUALSERVER_ACTION" = "SSL_DOMAIN" ]; then
     # Use rsync to transfer the cert file
     rsync -avz "$CERT_FILE" "$REMOTE_HOST":"$DESTINATION_PATH"
 fi
+```
+
+#### Set default WP Workbench options for new WordPress sites
+
+```text
+#!/bin/sh
+
+# Virtualmin CLI
+VIRTUALMIN=/usr/sbin/virtualmin
+[ -x "$VIRTUALMIN" ] || exit 0
+
+# Only for script changes on a domain
+[ "$VIRTUALSERVER_ACTION" = "SCRIPT_DOMAIN" ] || exit 0
+
+# Only for WordPress script
+[ "$VIRTUALSERVER_LASTSAVE_SCRIPT" = "wordpress" ] || exit 0
+
+# Only for fresh installs
+[ "$SCRIPT_UPGRADE" = "1" ] && exit 0
+
+# Set memory limits for this WordPress site and enable brute-force protection
+"$VIRTUALMIN" configure-script \
+    --app wordpress --app-path $SCRIPT_PATH --domain "$VIRTUALSERVER_DOM" \
+    --apply 'wp_memory_limit 512M' \
+    --apply 'wp_max_memory_limit 768M' \
+    --apply 'fail2ban_foreign true'
+
+exit 0
 ```
 
 ### Setting up pre and post modification scripts
