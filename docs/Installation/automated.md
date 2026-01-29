@@ -20,6 +20,9 @@ If you haven't already, read the [Download](/download/) page first, as it covers
 {{< html span "" "" "mysql-vs-mariadb" >}}
 {{< alert primary exclamation "" "On Debian and its derivatives, the Virtualmin installer treats MariaDB and MySQL as drop-in replacements, so if MySQL is already installed it will use it. To use Oracle MySQL instead of MariaDB, install `mysql-server`, `mysql-common`, and `libdbd-mysql-perl` with your package manager before running the installer. This is not available on EL-based systems, where only MariaDB is supported." >}}
 
+{{< html span "" "" "postgresql" >}}
+{{< alert primary exclamation "" "PostgreSQL and the Webmin PostgreSQL module are no longer installed by default. If you want PostgreSQL as part of the initial install, add `--include PostgreSQL` to your `virtualmin-install.sh` command, and also add `--extra webmin-postgresql,postgresql,postgresql-client` on EL systems or `--extra webmin-postgresql,postgresql,postgresql-server` on Debian and derivatives. You can also skip MariaDB setup with `--exclude MariaDB`. If Virtualmin is already installed, install the PostgreSQL packages and the Webmin PostgreSQL module for your OS, and then run `virtualmin-config-system --include PostgreSQL`." >}}
+
 ### Automated installation
 
 In most cases, installing Virtualmin is as simple as installing a supported OS and then running the `virtualmin-install.sh` script. Supported systems are listed on the [OS Support](/docs/os-support/) page.
@@ -47,32 +50,29 @@ Usage: virtualmin-install.sh [options]
 
   --bundle|-b <LAMP|LEMP>          bundle to install (default: LAMP)
   --type|-t <full|mini>            install type (default: full)
-
-  --branch|-B <stable|prerelease|unstable>
-                                   install branch (default: stable)
   --os-grade|-g <A|B>              operating system support grade (default: A)
+  --branch|-B <stable|rc|devel>    install branch (default: stable)
 
   --extra|-E <name[,name..]>       install extra packages before stack install
   --exclude|-e <name[,name..]>     exclude plugin from configuration phase
-
+  --include|-i <name[,name..]>     include plugin in configuration phase
   --module|-o                      load custom module in post-install phase
 
   --hostname|-n                    force hostname during install
   --no-package-updates|-x          skip package updates during install
   --no-hostname-ssl|-nhs           skip SSL certificate request for hostname
 
+  --uninstall|-u                   remove all packages and dependencies
   --setup|-s                       reconfigure repos without installing
   --connect|-C <ipv4|ipv6>         test connectivity without installing
-
-  --insecure-downloads|-i          skip SSL certificate check for downloads
-
-  --uninstall|-u                   remove all packages and dependencies
+  --insecure-downloads|-I          skip SSL certificate check for downloads
 
   --force|-f|--yes|-y              assume "yes" to all prompts
   --force-reinstall|-fr            force complete reinstall (not recommended)
   --no-banner|-nb                  suppress installation messages and warnings
-  --verbose|-v                     enable verbose mode
-  --version|-V                     show installer version
+  --verbose|-V                     enable verbose mode
+
+  --version|-v                     show installer version
   --help|-h                        show this help
 ```
 
