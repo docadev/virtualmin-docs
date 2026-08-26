@@ -17,12 +17,6 @@ There are two ways to install Virtualmin: using the automated install script des
 
 If you haven't already, read the [Download](/download/) page first, as it covers the steps needed for most installations on one page. Only move on to the more detailed docs if those steps don't work for your situation.
 
-{{< html span "" "" "mysql-vs-mariadb" >}}
-{{< alert primary exclamation "" "On Debian and its derivatives, the Virtualmin installer treats MariaDB and MySQL as drop-in replacements, so if MySQL is already installed it will use it. To use Oracle MySQL instead of MariaDB, install `mysql-server`, `mysql-common`, and `libdbd-mysql-perl` with your package manager before running the installer. This is not available on EL-based systems, where only MariaDB is supported." >}}
-
-{{< html span "" "" "postgresql" >}}
-{{< alert primary exclamation "" "PostgreSQL and the Webmin PostgreSQL module are no longer installed by default. If you want PostgreSQL as part of the initial install, add `--include PostgreSQL` to your `virtualmin-install.sh` command, and also add `--extra webmin-postgresql,postgresql,postgresql-server` on EL systems or `--extra webmin-postgresql,postgresql,postgresql-client` on Debian and derivatives. You can also skip MariaDB setup with `--exclude MariaDB`. If Virtualmin is already installed, install the PostgreSQL packages and the Webmin PostgreSQL module for your OS, then run `virtualmin-config-system --include PostgreSQL` and lastly turn PostgreSQL feature on in the \"System Settings ⇾ Features and Plugins\" page." >}}
-
 ### Automated installation
 
 In most cases, installing Virtualmin is as simple as installing a supported OS and then running the `virtualmin-install.sh` script. Supported systems are listed on the [OS Support](/docs/os-support/) page.
@@ -33,13 +27,11 @@ We recommend using a minimal server version instance of your preferable operatin
 
 The OS-neutral `virtualmin-install.sh` script sets up the license key in `/etc/virtualmin-license`, configures your package manager for the Virtualmin repository, and then installs the `virtualmin-config` package, which completes the install for your OS and version.
 
-If you're using Virtualmin Pro, download `virtualmin-install.sh` from [My Account → Dashboard](/account/) page. If you're using Virtualmin GPL, download it from the [Download](/download/) page.
+Download the `virtualmin-install.sh` script directly from {{< install-script-link >}} to your server. The same script works for Virtualmin Pro too—either download a personalized copy from the [My Account → Dashboard](/account/) page, or pass your license through the `SERIAL` and `KEY` [environment variables](#license-via-environment-variables), which the **Pro** switch below builds for you.
 
-Once the `virtualmin-install.sh` script is on your server, run it as root:
+Once the script is on your server, run it as root, using the toggles to add the flags matching your setup:
 
-```text
-sudo sh virtualmin-install.sh
-```
+{{< install-command local >}}
 
 The installer supports several options for different install types. Run it with `--help` to see the available choices.
 
@@ -78,7 +70,7 @@ Usage: virtualmin-install.sh [options]
 
 #### Install script flags
 
-The installation command on the [Download](/download/#download-and-run-install-script) page and, for Virtualmin Pro, the one on the [My Account → Dashboard](/account/) page—lets you select the most common options with a click and adds the matching flags to the command for you.
+The installation command above, as well as the ones on the [Download](/download/#download-and-run-install-script) and [My Account → Dashboard](/account/) pages, lets you select the most common options with a click and adds the matching flags to the command for you.
 
 ##### LAMP (Apache) vs. LEMP (Nginx)
 
@@ -106,7 +98,7 @@ During installation, a TLS certificate is automatically requested for the system
 
 ##### Including and excluding features
 
-The `--include`, `--exclude`, and `--extra` flags fine-tune the configuration phase. `--include` enables extra configuration plugins, `--exclude` skips ones that would run by default, and `--extra` installs additional packages before the stack install. For example, to add PostgreSQL support as part of the initial install, see the [PostgreSQL note](#postgresql) above.
+The `--include`, `--exclude`, and `--extra` flags fine-tune the configuration phase. `--include` enables extra configuration plugins, `--exclude` skips ones that would run by default, and `--extra` installs additional packages before the stack install. For example, to add PostgreSQL support as part of the initial install, see the [PostgreSQL](#postgresql) caveat below.
 
 ##### Maintenance and recovery
 
@@ -145,6 +137,22 @@ Unattended install with a preset hostname:
 ```text
 sudo sh virtualmin-install.sh --hostname host.example.com --yes
 ```
+
+#### Database caveats
+
+##### MySQL vs. MariaDB
+
+On Debian and its derivatives, the Virtualmin installer treats MariaDB and MySQL as drop-in replacements, so if MySQL is already installed it will use it. The easiest way to choose MySQL is the **MySQL** toggle under the install command on the [Download](/download/#download-and-run-install-script) page, which adds `--extra mysql-server,mysql-common,libdbd-mysql-perl` so the packages are installed before the stack. Doing it by hand, install those packages with your package manager before running the installer.
+
+The MySQL packages ship with Ubuntu but not with Debian, which only offers MariaDB. On Debian, first add the official [MySQL APT repository](https://dev.mysql.com/downloads/repo/apt/), and the same toggle or packages then work.
+
+Choosing MySQL at install time is not available on EL systems, where only MariaDB is supported. On an EL system, MySQL can only be set up after the installation is done by adding the official [MySQL repository](https://dev.mysql.com/downloads/repo/yum/), removing the MariaDB packages together with the `/var/lib/mysql` data directory, installing the MySQL server packages, and re-running the database configuration with `virtualmin-config-system --include MySQL`. Removing the data directory deletes all existing databases, so do this on a freshly installed system or back them up first.
+
+##### PostgreSQL
+
+PostgreSQL is not installed by default. The easiest way to include it in the initial install is the **PostgreSQL** toggle under the install command on the [Download](/download/#download-and-run-install-script) page, which adds the right flags for your OS family. Doing it by hand, add `--include PostgreSQL` to your `virtualmin-install.sh` command, plus `--extra postgresql,postgresql-server` on EL systems or `--extra postgresql,postgresql-client` on Debian and derivatives. You can also skip MariaDB setup with `--exclude MariaDB`.
+
+If Virtualmin is already installed, install the PostgreSQL packages for your OS, then run `virtualmin-config-system --include PostgreSQL` and lastly turn the PostgreSQL feature on in the "System Settings ⇾ Features and Plugins" page.
 
 ### Questions install script might ask you
 
